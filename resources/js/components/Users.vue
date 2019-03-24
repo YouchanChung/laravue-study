@@ -20,13 +20,15 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Type</th>
+                                <th>Registered at</th>
                                 <th>Modify</th>
                             </tr>
-                            <tr>
-                                <td>183</td>
-                                <td>John Doe</td>
-                                <td>11-7-2014</td>
-                                <td><span class="tag tag-success">Approved</span></td>
+                            <tr v-for="user in users" :key="user.id">
+                                <td>{{user.id}}</td>
+                                <td>{{user.name}}</td>
+                                <td>{{user.email}}</td>
+                                <td><span class="tag tag-success">{{user.type | upText}}</span></td>
+                                <td>{{user.created_at | myDate}}</td>
                                 <td>
                                     <a href="#"><i class="fa fa-edit blue"></i></a>
                                     /
@@ -109,6 +111,7 @@
     export default {
         data() {
             return {
+                users: {},
                 form: new Form({
                     name: '',
                     email: '',
@@ -120,12 +123,32 @@
             }
         },
         methods: {
+            loadUsers() {
+                axios.get('api/user').then(({ data }) => (this.users = data.data));
+            },
             createUser() {
-                this.form.post('api/user');
+                this.$Progress.start();
+                this.form.post('api/user').then(() => {
+
+                    $('#addNew').modal('hide');
+                    this.$emit('AfterCreate');
+                    toast.fire({
+                        type: 'success',
+                        title: 'User created in successfully'
+                    });
+                    this.$Progress.finish();
+
+                });
             }
         },
-        mounted() {
-            console.log('Component mounted.')
-        }
+        created() {
+            this.loadUsers();
+            this.$on('AfterCreate', () => {
+                console.log('on after create listener : this');
+                this.loadUsers();
+            });
+
+            // setInterval(() => this.loadUsers(), 3000);
+        },
     }
 </script>
