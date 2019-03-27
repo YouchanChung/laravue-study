@@ -54,13 +54,13 @@
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
-                            <li class="nav-item"><a class="nav-link active show" href="#activity" data-toggle="tab">Activity</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
+                            <li class="nav-item"><a class="nav-link " href="#activity" data-toggle="tab">Activity</a></li>
+                            <li class="nav-item"><a class="nav-link active show" href="#settings" data-toggle="tab">Settings</a></li>
                         </ul>
                     </div><!-- /.card-header -->
                     <div class="card-body">
                         <div class="tab-content">
-                            <div class="tab-pane active show" id="activity">
+                            <div class="tab-pane" id="activity">
                                 <!-- Post -->
                                 <div class="post">
                                     <div class="user-block">
@@ -175,53 +175,46 @@
                             </div>
                             <!-- /.tab-pane -->
 
-                            <div class="tab-pane" id="settings">
+                            <div class="tab-pane active show" id="settings">
                                 <form class="form-horizontal">
                                     <div class="form-group">
-                                        <label for="inputName" class="col-sm-2 control-label">Name</label>
-
-                                        <div class="col-sm-10">
-                                            <input type="email" class="form-control" id="inputName" placeholder="Name">
+                                        <label for="inputName" class="col-sm-12 control-label">Name</label>
+                                        <div class="col-sm-12">
+                                            <input v-model="form.name" type="text" class="form-control" id="inputName" placeholder="Name">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                                        <label for="inputEmail" class="col-sm-12 control-label">Email</label>
 
-                                        <div class="col-sm-10">
-                                            <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                                        <div class="col-sm-12">
+                                            <input v-model="form.email" type="email" class="form-control" id="inputEmail" placeholder="Email">
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="inputName2" class="col-sm-2 control-label">Name</label>
 
-                                        <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="inputName2" placeholder="Name">
-                                        </div>
-                                    </div>
                                     <div class="form-group">
                                         <label for="inputExperience" class="col-sm-2 control-label">Experience</label>
 
-                                        <div class="col-sm-10">
+                                        <div class="col-sm-12">
                                             <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputPhoto" class="col-sm-2 control-label">Profile Photo</label>
+                                        <label for="inputPhoto" class="col-sm-12 control-label">Profile Photo</label>
 
-                                        <div class="col-sm-10">
-                                            <input type="file">
+                                        <div class="col-sm-12">
+                                            <input type="file" @change="updateProfile" id="inputPhoto" name="file" class="form-input">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputPassport" class="col-sm-2 control-label">Passport (leave empty if not changing)</label>
+                                        <label for="inputPassport" class="col-sm-12 control-label">Passport (leave empty if not changing)</label>
 
-                                        <div class="col-sm-10">
+                                        <div class="col-sm-12">
                                             <input type="text" class="form-control" id="inputPassport" placeholder="Passport">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-sm-offset-2 col-sm-10">
-                                            <button type="submit" class="btn btn-success">Update</button>
+                                            <button @click.prevent="updateInfo" type="submit" class="btn btn-success">Update</button>
                                         </div>
                                     </div>
                                 </form>
@@ -239,8 +232,48 @@
 
 <script>
     export default {
-        mounted() {
-            console.log('Component mounted.')
+        data() {
+            return {
+                form: new Form({
+                    id: '',
+                    name: '',
+                    email: '',
+                    password: '',
+                    type: '',
+                    bio: '',
+                    photo: ''
+                })
+            }
+        },
+
+        methods: {
+
+            updateInfo() {
+                this.$Progress.start();
+                this.form.put('api/profile').then(() => {
+                    this.$Progress.finish();
+                }).catch(() => {
+                    this.$Progress.fail();
+                });
+
+            },
+            updateProfile(e) {
+                let file = e.target.files[0];
+                let reader = new FileReader();
+                if (file['size'] < 2111775) {
+                    reader.onloadend = (file) => {
+                        this.form.photo = reader.result;
+                    }
+                    console.log(reader.readAsDataURL(file));
+                } else {
+                    swal.fire('Oops...', 'You are uploading a large file', 'error')
+                }
+
+            }
+        },
+        created() {
+            console.log('Component created.')
+            axios.get('api/profile').then(({data}) => (this.form.fill(data)));
         }
     }
 </script>

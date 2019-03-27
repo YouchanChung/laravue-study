@@ -113,7 +113,7 @@
         data() {
             return {
                 editmode: false,
-                title: 'Add New',
+                title: 'Add  a  New',
                 users: {},
                 form: new Form({
                     id: '',
