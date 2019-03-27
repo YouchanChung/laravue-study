@@ -73,7 +73,7 @@
                                    placeholder="Short bio for user (Optional)"
                                    class="form-control" :class="{ 'is-invalid': form.errors.has('bio') }">
                             </textarea>
-                            <has-error :form="form" field="bui"></has-error>
+                            <has-error :form="form" field="bio"></has-error>
                         </div>
                         <div class="form-group">
                             <select v-model="form.type" name="type" id="type"

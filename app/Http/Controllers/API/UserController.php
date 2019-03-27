@@ -59,14 +59,31 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $user = auth('api')->user();
-        if ($request->photo) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+            'password' => 'sometimes|required|min:8'
+        ]);
+
+        $currentPhoto = $user->photo;
+        if ($request->photo != $currentPhoto) {
             $name = time().'.'.explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+
             Image::make($request->photo)->save(public_path('img/profile/').$name);
+
+            $request->merge(['photo' => $name]);
+
+            $userPhoto = public_path('img/profile/').$currentPhoto;
+            if (@file_exists($userPhoto)) {
+                @unlink($userPhoto);
+            }
         }
-        return $request->photo;
-        return [
-            'message' => 'Success user info updated'
-        ];
+
+        if (!empty($request->password)) {
+            $request->merge(['password' => Hash::make($request['password'])]);
+        }
+        $user->update($request->all());
+        return ['message' => 'success'];
     }
 
     /**
