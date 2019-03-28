@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row">
+        <div class="row" v-if="$gage.isAdmin()">
             <div class="col-md-12 mt-3">
                 <passport-clients></passport-clients>
                 <passport-authorized-clients></passport-authorized-clients>

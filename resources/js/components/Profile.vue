@@ -255,7 +255,8 @@
 
         methods: {
             getProfilePhoto() {
-                return "img/profile/" + this.form.photo;
+                let photo = (this.form.photo.length > 200) ? this.form.photo : "img/profile/"+ this.form.photo ;
+                return photo;
             },
             updateInfo() {
                 this.$Progress.start();
@@ -264,6 +265,7 @@
                 }
                 this.form.put('api/profile').then(() => {
                     this.$Progress.finish();
+                    this.$emit('AfterUpdatedProfile');
                 }).catch(() => {
                     this.$Progress.fail();
                 });
@@ -276,7 +278,6 @@
                     reader.onloadend = (file) => {
                         this.form.photo = reader.result;
                     }
-                    console.log(reader.readAsDataURL(file));
                 } else {
                     swal.fire('Oops...', 'You are uploading a large file', 'error')
                 }
